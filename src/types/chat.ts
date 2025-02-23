@@ -1,26 +1,11 @@
-// src/types/chat.ts
+export type SupportedLanguage = 'chinese' | 'japanese' | 'korean' | 'spanish' | 'english';
+export type ChatRole = 'user' | 'assistant';
 
-export type SupportedLanguage = 'chinese' | 'japanese' | 'korean' | 'spanish';
-
-export interface Character {
-  id: string;
-  name: string;
-  language: SupportedLanguage;
-  description: string;
-  image: string;
-  chineseName?: string;
-  japaneseName?: string;
-  koreanName?: string;
-  spanishName?: string;
-  scenes: Record<number, Scene>;
-}
-
-export interface Scene {
-  initial?: MessageContent;
-  options: ChatOption[];
-  video?: string;
-  transition?: string;
-}
+export type CharacterId =
+  | 'mei' | 'ting' | 'xue'
+  | 'aoi' | 'aya' | 'misa'
+  | 'ji' | 'min' | 'sua'
+  | 'isabella' | 'sofia' | 'valentina';
 
 export interface MessageContent {
   english: string;
@@ -31,12 +16,18 @@ export interface MessageContent {
   korean?: string;
   romanized?: string;
   spanish?: string;
-  video?: string;
   context?: string;
+  video?: string;
+}
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: MessageContent;
+  timestamp?: number;
 }
 
 export interface ChatOption {
-  id: string;  // Added this
+  id?: string;
   english: string;
   chinese?: string;
   pinyin?: string;
@@ -51,8 +42,24 @@ export interface ChatOption {
   context?: string;
 }
 
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: MessageContent;
-  timestamp?: number;
+export interface Scene {
+  initial: MessageContent;
+  options: ChatOption[];
+  video?: string;
+  transition?: string;
 }
+
+export interface Character {
+  id: CharacterId;
+  name: string;
+  description: string;
+  language: SupportedLanguage;
+  image: string;
+  scenes: Record<number, Scene>;
+  chineseName?: string;
+  japaneseName?: string;
+  koreanName?: string;
+  spanishName?: string;
+}
+
+export type Characters = Record<CharacterId, Character>;

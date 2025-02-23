@@ -1,7 +1,6 @@
-// src/components/ChatInterface/ChatMessage.tsx
 import { useCallback } from 'react';
 import { ChatMessage, SupportedLanguage } from '@/types/chat';
-import  PlayAudio  from '@/components/PlayAudio';
+import PlayAudio from '@/components/PlayAudio';
 import { languageToTTSCode } from '@/utils/languageUtils';
 
 interface ChatMessageProps {
@@ -37,13 +36,13 @@ export function ChatMessageComponent({ message, avatarSrc, language }: ChatMessa
   return (
     <div className={`flex items-start gap-3 ${isUserMessage ? 'flex-row-reverse' : ''}`}>
       {!isUserMessage && avatarSrc && (
-        <img 
-          src={avatarSrc} 
-          alt="Tutor" 
+        <img
+          src={avatarSrc}
+          alt="Tutor"
           className="w-8 h-8 rounded-full flex-shrink-0"
         />
       )}
-      
+
       <div className={`relative rounded-lg p-4 max-w-[80%] ${
         isUserMessage ? 'bg-green-600 text-white' : 'bg-gray-800 text-white'
       }`}>
@@ -52,8 +51,8 @@ export function ChatMessageComponent({ message, avatarSrc, language }: ChatMessa
             {getPrimaryText()}
           </p>
           {!isUserMessage && (
-            <PlayAudio 
-              text={getPrimaryText()} 
+            <PlayAudio
+              text={getPrimaryText()}
               language={ttsCode}
               size="sm"
               className="flex-shrink-0"

@@ -1,21 +1,6 @@
-// src/services/ttsService.ts
 import { SupportedLanguage } from '@/types/chat';
-
-interface TTSOptions {
-  text: string;
-  language: SupportedLanguage;
-  onStart?: () => void;
-  onEnd?: () => void;
-  onError?: (error: Error) => void;
-}
-
-// Map full language names to TTS codes
-const languageToTTSCode = {
-  'chinese': 'zh',
-  'japanese': 'ja',
-  'korean': 'ko',
-  'spanish': 'es'
-} as const;
+import { TTSOptions, TTSLanguageCode } from '@/types/tts';
+import { languageToTTSCode } from '@/utils/languageUtils';
 
 class TTSService {
   private static instance: TTSService;
@@ -39,25 +24,21 @@ class TTSService {
     onError
   }: TTSOptions): Promise<void> {
     try {
-      // Stop any currently playing audio
       this.stop();
 
-      const ttsCode = languageToTTSCode[language];
-      
-      // Check cache first
+      const ttsCode: TTSLanguageCode = languageToTTSCode(language as SupportedLanguage);
       const cacheKey = `${ttsCode}:${text}`;
       let audio = this.audioCache.get(cacheKey);
 
       if (!audio) {
-        // Make API request to get audio
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
-            text, 
-            language: ttsCode 
+          body: JSON.stringify({
+            text,
+            language: ttsCode
           }),
         });
 
@@ -67,13 +48,10 @@ class TTSService {
 
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
-        
-        // Create and cache new audio element
         audio = new Audio(url);
         this.audioCache.set(cacheKey, audio);
       }
 
-      // Set up event listeners
       audio.onplay = () => onStart?.();
       audio.onended = () => {
         onEnd?.();
@@ -84,7 +62,6 @@ class TTSService {
         this.currentAudio = null;
       };
 
-      // Play the audio
       this.currentAudio = audio;
       await audio.play();
 

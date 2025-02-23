@@ -1,5 +1,3 @@
-// src/components/ChatInterface/ChatOptions.tsx
-
 import { ChatOption } from '@/types/chat';
 
 interface ChatOptionsProps {
@@ -8,20 +6,18 @@ interface ChatOptionsProps {
 }
 
 export function ChatOptions({ options, onSelectOption }: ChatOptionsProps) {
-  // Get primary text based on language content
   const getPrimaryText = (option: ChatOption) => {
-    return option.chinese || 
-           option.japanese || 
-           option.korean || 
-           option.spanish || 
+    return option.chinese ||
+           option.japanese ||
+           option.korean ||
+           option.spanish ||
            option.english;
   };
 
-  // Get pronunciation if available
   const getPronunciation = (option: ChatOption) => {
-    return option.pinyin || 
-           option.romaji || 
-           option.romanized || 
+    return option.pinyin ||
+           option.romaji ||
+           option.romanized ||
            '';
   };
 
@@ -47,8 +43,7 @@ export function ChatOptions({ options, onSelectOption }: ChatOptionsProps) {
                 {option.english}
               </p>
             </div>
-            
-            <button 
+            <button
               className="ml-2 p-1 text-gray-400 hover:text-white"
               onClick={(e) => {
                 e.stopPropagation();
@@ -65,3 +60,4 @@ export function ChatOptions({ options, onSelectOption }: ChatOptionsProps) {
     </div>
   );
 }
+// src/components/ChatInterface/ChatOptions.tsx

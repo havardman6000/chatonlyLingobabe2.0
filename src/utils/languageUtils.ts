@@ -1,13 +1,14 @@
-// src/utils/languageUtils.ts
 import { SupportedLanguage } from '@/types/chat';
+import { TTSLanguageCode } from '@/types/tts';
 
-export const languageToTTSCode = (language: SupportedLanguage): 'zh' | 'ja' | 'ko' | 'es' => {
-  const mapping = {
+export const languageToTTSCode = (language: SupportedLanguage): TTSLanguageCode => {
+  const mapping: Record<SupportedLanguage, TTSLanguageCode> = {
     'chinese': 'zh',
     'japanese': 'ja',
     'korean': 'ko',
-    'spanish': 'es'
-  } as const;
+    'spanish': 'es',
+    'english': 'en'
+  };
 
   return mapping[language];
 };

@@ -9,17 +9,16 @@ interface ChatHeaderProps {
   onBack?: () => void;
 }
 
-export default function ChatHeader({ 
-  characterName, 
-  characterId, 
-  happiness, 
+export default function ChatHeader({
+  characterName,
+  characterId,
+  happiness,
   language,
-  onBack 
+  onBack
 }: ChatHeaderProps) {
   const router = useRouter();
   const [showConfirmExit, setShowConfirmExit] = useState(false);
 
-  // Handle the back button click
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -28,7 +27,6 @@ export default function ChatHeader({
     }
   };
 
-  // Get happiness indicator color
   const getHappinessColor = () => {
     if (happiness >= 80) return 'bg-green-500';
     if (happiness >= 60) return 'bg-blue-500';
@@ -37,7 +35,6 @@ export default function ChatHeader({
     return 'bg-red-500';
   };
 
-  // Close confirmation on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -51,7 +48,6 @@ export default function ChatHeader({
 
   return (
     <div className="bg-gray-900 border-b border-gray-800">
-      {/* Main Header Content */}
       <div className="px-4 py-3 flex items-center">
         <button
           onClick={handleBack}
@@ -86,10 +82,9 @@ export default function ChatHeader({
           </div>
         </div>
 
-        <div className="w-10" /> {/* Spacer to center the title */}
+        <div className="w-10" />
       </div>
 
-      {/* Exit Confirmation Modal */}
       {showConfirmExit && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-gray-800 rounded-lg p-6 max-w-sm w-full">

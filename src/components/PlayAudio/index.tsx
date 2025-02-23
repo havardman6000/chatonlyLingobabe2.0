@@ -1,4 +1,3 @@
-// src/components/PlayAudio/index.tsx
 import { useState, useCallback } from 'react';
 import { ttsService } from '@/app/services/ttsService';
 import { TTSLanguageCode } from '@/types/tts';
@@ -10,8 +9,8 @@ interface PlayAudioProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export default function PlayAudio({ 
-  text, 
+export default function PlayAudio({
+  text,
   language,
   className = '',
   size = 'md'
@@ -60,8 +59,8 @@ export default function PlayAudio({
     <button
       onClick={handlePlay}
       disabled={isPlaying || isLoading}
-      className={`relative rounded-full flex items-center justify-center 
-        ${isPlaying ? 'bg-green-600' : 'bg-blue-600'} 
+      className={`relative rounded-full flex items-center justify-center
+        ${isPlaying ? 'bg-green-600' : 'bg-blue-600'}
         hover:opacity-90 transition-all
         ${sizeClasses[size]}
         ${className}`}
@@ -88,3 +87,4 @@ export default function PlayAudio({
     </button>
   );
 }
+// src/components/PlayAudio/index.tsx

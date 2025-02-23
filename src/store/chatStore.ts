@@ -1,49 +1,91 @@
-// src/store/chatStore.ts
-
 import { create } from 'zustand';
-import type { ChatMessage } from '@/types/chat';
+import { persist } from 'zustand/middleware';
 import { characters } from '@/data/characters';
+import { CharacterId, ChatMessage } from '@/types/chat';
 
 interface ChatState {
-  selectedCharacter: string | null;
+  selectedCharacter: CharacterId | null;
   messages: ChatMessage[];
   currentScene: number;
-  happiness: Record<string, number>;
+  happiness: Record<CharacterId, number>;
   actions: {
-    selectCharacter: (characterId: string) => void;
-    addMessage: (message: ChatMessage) => void;
-    setScene: (sceneNumber: number) => void;
-    updateHappiness: (characterId: string, points: number) => void;
+    selectCharacter: (characterId: CharacterId) => void;
+    addMessage: (message: Omit<ChatMessage, 'timestamp'>) => void;
+    updateHappiness: (characterId: CharacterId, points: number) => void;
+    setScene: (scene: number) => void;
     reset: () => void;
   };
 }
 
-export const useChatStore = create<ChatState>((set) => ({
-  selectedCharacter: null,
-  messages: [],
-  currentScene: 1,
-  happiness: {},
-  actions: {
-    selectCharacter: (characterId: string) => {
-      if (characters[characterId]) {
-        set({ 
-          selectedCharacter: characterId,
-          messages: [],
-          currentScene: 1,
-          happiness: { [characterId]: 50 } // Initial happiness
-        });
+// Initialize happiness with default values for each character
+const initialHappiness: Record<CharacterId, number> = {
+  mei: 50,
+  ting: 50,
+  xue: 50,
+  aoi: 50,
+  aya: 50,
+  misa: 50,
+  ji: 50,
+  min: 50,
+  sua: 50,
+  isabella: 50,
+  sofia: 50,
+  valentina: 50,
+};
+
+export const useChatStore = create<ChatState>()(
+  persist(
+    (set, get) => ({
+      selectedCharacter: null,
+      currentScene: 1,
+      messages: [],
+      happiness: initialHappiness,
+      actions: {
+        selectCharacter: (characterId) => {
+          const scene = characters[characterId]?.scenes[1];
+          if (scene) {
+            set({
+              selectedCharacter: characterId,
+              currentScene: 1,
+              messages: [{
+                role: 'assistant',
+                content: scene.initial,
+                timestamp: Date.now()
+              }],
+              happiness: { ...initialHappiness, [characterId]: 50 }
+            });
+          }
+        },
+        addMessage: (message) =>
+          set((state) => ({
+            messages: [...state.messages, { ...message, timestamp: Date.now() }]
+          })),
+        updateHappiness: (characterId, points) =>
+          set((state) => ({
+            happiness: {
+              ...state.happiness,
+              [characterId]: Math.min(100, Math.max(0, (state.happiness[characterId] || 50) + points))
+            }
+          })),
+        setScene: (scene) =>
+          set({ currentScene: scene }),
+        reset: () =>
+          set({
+            selectedCharacter: null,
+            currentScene: 1,
+            messages: [],
+            happiness: initialHappiness
+          })
       }
-    },
-    addMessage: (message: ChatMessage) => 
-      set((state) => ({ messages: [...state.messages, message] })),
-    setScene: (sceneNumber: number) => set({ currentScene: sceneNumber }),
-    updateHappiness: (characterId: string, points: number) =>
-      set((state) => ({
-        happiness: {
-          ...state.happiness,
-          [characterId]: Math.min(100, Math.max(0, (state.happiness[characterId] || 50) + points))
-        }
-      })),
-    reset: () => set({ messages: [], currentScene: 1 })
-  }
-}));
+    }),
+    {
+      name: 'chat-storage',
+      partialize: (state) => ({
+        selectedCharacter: state.selectedCharacter,
+        currentScene: state.currentScene,
+        messages: state.messages,
+        happiness: state.happiness
+      })
+    }
+  )
+);

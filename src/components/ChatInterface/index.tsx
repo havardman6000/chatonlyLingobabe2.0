@@ -1,4 +1,5 @@
-// src/components/ChatInterface/index.tsx
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChatMessageComponent } from './ChatMessage';
@@ -6,7 +7,7 @@ import { ChatOptions } from './ChatOptions';
 import ChatCompletionPopup from '../ChatInterface/ChatCompletionPopup/index';
 import { useChatStore } from '@/store/chatStore';
 import { characters } from '@/data/characters';
-import type { ChatMessage, ChatOption } from '@/types/chat';
+import type { CharacterId, ChatMessage, ChatOption } from '@/types/chat';
 
 interface ChatInterfaceProps {
   characterId: string;
@@ -16,8 +17,7 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { selectedCharacter, messages, currentScene, happiness, actions } = useChatStore();
-  
-  // Local state
+
   const [input, setInput] = useState('');
   const [showOptions, setShowOptions] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -30,7 +30,7 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
   useEffect(() => {
     if (!selectedCharacter || selectedCharacter !== characterId) {
       actions.reset();
-      actions.selectCharacter(characterId);
+      actions.selectCharacter(characterId as CharacterId);
     }
   }, [selectedCharacter, characterId, actions]);
 
@@ -48,7 +48,6 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
     setError(null);
 
     try {
-      // Add user message
       actions.addMessage({
         role: 'user',
         content: option
@@ -56,7 +55,6 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Add response if available
       if (option.response) {
         actions.addMessage({
           role: 'assistant',
@@ -64,12 +62,10 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
         });
       }
 
-      // Update happiness if points available
       if (typeof option.points === 'number') {
-        actions.updateHappiness(characterId, option.points);
+        actions.updateHappiness(characterId as CharacterId, option.points);
       }
 
-      // Progress to next scene if available
       if (currentScene < 5) {
         setIsTransitioning(true);
         setTimeout(() => {
@@ -89,7 +85,6 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900">
-      {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <ChatMessageComponent
@@ -102,14 +97,12 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="px-4 py-2 bg-red-600 text-white text-center">
           {error}
         </div>
       )}
 
-      {/* Chat Options */}
       <div className="mt-4">
         {showOptions && currentSceneData?.options && (
           <ChatOptions
@@ -119,7 +112,6 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
         )}
       </div>
 
-      {/* Completion Popup */}
       {showCompletionPopup && character && (
         <ChatCompletionPopup
           language={character.language}
@@ -132,3 +124,4 @@ export default function ChatInterface({ characterId }: ChatInterfaceProps) {
     </div>
   );
 }
+// src/components/ChatInterface/index.tsx

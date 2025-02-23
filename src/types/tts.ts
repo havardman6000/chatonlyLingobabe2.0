@@ -1,5 +1,4 @@
-// src/types/tts.ts
-export type TTSLanguageCode = 'zh' | 'ja' | 'ko' | 'es';
+export type TTSLanguageCode = 'zh' | 'ja' | 'ko' | 'es' | 'en';
 
 export type TTSOptions = {
   text: string;
