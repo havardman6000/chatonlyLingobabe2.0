@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { ChatMessage, SupportedLanguage } from '@/types/chat';
-import PlayAudio from '@/components/PlayAudio';
+import PlayAudio from '@/components/ChatInterface/AudioPlayer';
 import { languageToTTSCode } from '@/utils/languageUtils';
 
 interface ChatMessageProps {

@@ -1,7 +1,10 @@
+// src/store/chatStore.ts
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { characters } from '@/data/characters';
 import { CharacterId, ChatMessage } from '@/types/chat';
+import { storageService } from '@/services/storageService';
 
 interface ChatState {
   selectedCharacter: CharacterId | null;
@@ -17,7 +20,7 @@ interface ChatState {
   };
 }
 
-// Initialize happiness with default values for each character
+// Initialize happiness for all characters
 const initialHappiness: Record<CharacterId, number> = {
   mei: 50,
   ting: 50,
@@ -30,29 +33,34 @@ const initialHappiness: Record<CharacterId, number> = {
   sua: 50,
   isabella: 50,
   sofia: 50,
-  valentina: 50,
+  valentina: 50
 };
 
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       selectedCharacter: null,
-      currentScene: 1,
       messages: [],
+      currentScene: 1,
       happiness: initialHappiness,
       actions: {
         selectCharacter: (characterId) => {
-          const scene = characters[characterId]?.scenes[1];
+          const stats = storageService.getStats(characterId);
+          const scene = characters[characterId]?.scenes[stats.currentScene];
+          
           if (scene) {
             set({
               selectedCharacter: characterId,
-              currentScene: 1,
+              currentScene: stats.currentScene,
               messages: [{
                 role: 'assistant',
                 content: scene.initial,
                 timestamp: Date.now()
               }],
-              happiness: { ...initialHappiness, [characterId]: 50 }
+              happiness: { 
+                ...initialHappiness,
+                [characterId]: stats.happiness 
+              }
             });
           }
         },
@@ -60,22 +68,40 @@ export const useChatStore = create<ChatState>()(
           set((state) => ({
             messages: [...state.messages, { ...message, timestamp: Date.now() }]
           })),
-        updateHappiness: (characterId, points) =>
-          set((state) => ({
-            happiness: {
-              ...state.happiness,
-              [characterId]: Math.min(100, Math.max(0, (state.happiness[characterId] || 50) + points))
-            }
-          })),
-        setScene: (scene) =>
-          set({ currentScene: scene }),
-        reset: () =>
+        updateHappiness: (characterId, points) => {
+          set((state) => {
+            const currentHappiness = state.happiness[characterId] || 50;
+            const newHappiness = Math.min(100, Math.max(0, currentHappiness + points));
+            
+            storageService.updateHappiness(characterId, newHappiness);
+            
+            return {
+              happiness: {
+                ...state.happiness,
+                [characterId]: newHappiness
+              }
+            };
+          });
+        },
+        setScene: (scene) => {
+          const { selectedCharacter } = get();
+          if (selectedCharacter) {
+            storageService.updateScene(selectedCharacter, scene);
+            set({ currentScene: scene });
+          }
+        },
+        reset: () => {
+          const { selectedCharacter } = get();
+          if (selectedCharacter) {
+            storageService.resetCharacterProgress(selectedCharacter);
+          }
           set({
             selectedCharacter: null,
             currentScene: 1,
             messages: [],
-            happiness: initialHappiness
-          })
+            happiness: initialHappiness  // Reset to initial happiness values
+          });
+        }
       }
     }),
     {

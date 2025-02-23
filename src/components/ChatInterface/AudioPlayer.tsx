@@ -1,53 +1,77 @@
-import { useState, useCallback } from 'react';
-import { ttsService } from '@/app/services/ttsService';
-import { TTSLanguageCode } from '@/types/tts';
+// src/components/AudioPlayer.tsx
+'use client';
 
-interface PlayAudioProps {
+import React, { useState } from 'react';
+
+interface AudioPlayerProps {
   text: string;
-  language: TTSLanguageCode;
+  language: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  onClose?: () => void;  // Added onClose prop
 }
 
-export default function PlayAudio({
+const AudioPlayer: React.FC<AudioPlayerProps> = ({
   text,
   language,
   className = '',
-  size = 'md'
-}: PlayAudioProps) {
+  size = 'md',
+  onClose
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handlePlay = useCallback(async () => {
+  const handlePlay = async () => {
     if (isPlaying || isLoading) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      await ttsService.speak({
-        text,
-        language,
-        onStart: () => {
-          setIsLoading(false);
-          setIsPlaying(true);
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        onEnd: () => {
-          setIsPlaying(false);
-        },
-        onError: (error: Error) => {
-          setError(error.message);
-          setIsPlaying(false);
-          setIsLoading(false);
-        }
+        body: JSON.stringify({ text, language }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      audio.onplay = () => {
+        setIsLoading(false);
+        setIsPlaying(true);
+      };
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+        if (onClose) onClose();
+      };
+
+      audio.onerror = () => {
+        setError('Failed to play audio');
+        setIsPlaying(false);
+        setIsLoading(false);
+        URL.revokeObjectURL(audioUrl);
+        if (onClose) onClose();
+      };
+
+      await audio.play();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to play audio');
       setIsPlaying(false);
       setIsLoading(false);
+      if (onClose) onClose();
     }
-  }, [text, language, isPlaying, isLoading]);
+  };
 
   const sizeClasses = {
     sm: 'w-6 h-6',
@@ -86,5 +110,6 @@ export default function PlayAudio({
       )}
     </button>
   );
-}
-// src/components/PlayAudio/index.tsx
+};
+
+export default AudioPlayer;

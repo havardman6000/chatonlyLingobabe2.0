@@ -1,3 +1,6 @@
+// src/components/VideoPlayer.tsx
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 
 interface VideoPlayerProps {
@@ -5,15 +8,13 @@ interface VideoPlayerProps {
   className?: string;
   onReady?: () => void;
   onError?: (error: Error) => void;
-  autoPlay?: boolean;
 }
 
 export default function VideoPlayer({
   src,
   className = '',
   onReady,
-  onError,
-  autoPlay = true
+  onError
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,13 +27,13 @@ export default function VideoPlayer({
     const handleLoad = () => {
       setIsLoading(false);
       setHasError(false);
-      if (onReady) onReady();
+      onReady?.();
     };
 
     const handleError = (e: Event) => {
       setIsLoading(false);
       setHasError(true);
-      if (onError) onError(new Error('Failed to load video'));
+      onError?.(new Error('Failed to load video'));
       console.error('Video error:', e);
     };
 
@@ -83,7 +84,7 @@ export default function VideoPlayer({
       <video
         ref={videoRef}
         className={`w-full h-full object-contain ${className}`}
-        autoPlay={autoPlay}
+        autoPlay
         playsInline
         muted
         loop
@@ -94,4 +95,3 @@ export default function VideoPlayer({
     </div>
   );
 }
-// src/components/ChatInterface/Videoplay.tsx

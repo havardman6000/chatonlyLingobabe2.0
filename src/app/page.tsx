@@ -1,4 +1,4 @@
-// src/app/language-selector/page.tsx
+// src/app/page.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -10,16 +10,19 @@ const languages = [
   { id: 'spanish', name: 'Spanish', native: 'Español' }
 ];
 
-export default function LanguageSelector() {
+export default function HomePage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-pink-50 to-rose-100 py-12">
+    <main className="min-h-screen bg-gradient-to-r from-pink-50 to-rose-100 py-12">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-4xl md:text-6xl font-bold text-center text-gray-900 mb-8">
-          Choose Your Language
+        <h1 className="text-4xl md:text-6xl font-bold text-center text-gray-900 mb-4">
+          Welcome to Lingobabe AI
         </h1>
-        
+        <p className="text-xl text-center text-gray-700 mb-12">
+          Choose your language and start chatting with our AI tutors
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {languages.map((lang) => (
             <button
@@ -37,7 +40,6 @@ export default function LanguageSelector() {
           ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
-// src/app/page.tsx

@@ -6,11 +6,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
 });
 
+// Map languages to voices
 const languageToVoice = {
-  'zh': 'alloy',    // For Chinese
-  'ja': 'nova',     // For Japanese
-  'ko': 'shimmer',  // For Korean
-  'es': 'onyx'      // For Spanish
+  'chinese': 'alloy',
+  'japanese': 'nova',
+  'korean': 'shimmer',
+  'spanish': 'onyx'
 } as const;
 
 export async function POST(req: Request) {
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Map the TTS code to voice
+    // Select voice based on language or default to 'alloy'
     const voice = languageToVoice[language as keyof typeof languageToVoice] || 'alloy';
 
     const response = await openai.audio.speech.create({
